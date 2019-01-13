@@ -35,6 +35,7 @@ Nous appliquons la méthode PCA fournie par `scikit-learn` sur la matrice des de
 
 Nous obtenons que ces trois directions comptent pour 17% des variations de la totalité des données. Il s'agit maintenant d'observer si certaines espèces se distinguent des autres dans cet espace à trois dimensions de manière à former des groupes (clusters).
 
+![PCA 3d representation](../../jupyter/figures/pca.svg "Représentation 3D des trois directions de variation maximale de la méthode PCA")
 
 
 ---
