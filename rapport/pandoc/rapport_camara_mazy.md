@@ -37,5 +37,16 @@ Nous obtenons que ces trois directions comptent pour 17% des variations de la to
 
 ![PCA 3d representation](../../jupyter/figures/pca.svg "Représentation 3D des trois directions de variation maximale de la méthode PCA")
 
+Les trois directions de la méthode PCA semblent détenir des informations au sujet des espèces. Malheureusement, des groupes bien définis ne se distinguent pas assez. Nous allons donc utiliser une autre méthode de réduction de dimension.
+
+### Réduction dimensionnelle par t-SNE
+
+#### Principe
+
+#### Application
+
+![t-SNE representation](../../jupyter/figures/t-sne.svg "t-SNE")
+
+![t-SNE representation](../../jupyter/figures/t-sne_pca.svg "t-SNE PCA")
 
 ---
