@@ -7,46 +7,59 @@ Classifications par apprentissage
 
 # Exercice 1
 
-blablabla
+## Deux mises en place de GridSearch
 
----
+Nous nous intéressons à deux manières différentes de mettre en place la fonction `GridSearchCV` :
 
-# Exercice 2
+Code 1 : 
 
-## Présentation des données
+~~~~~~~ { .python .numberLines}
+grid_search.fit(X, y)
+acc = grid_search.best_score_
+~~~~~~~
 
-Les données contenues dans le fichier `train-data.txt` ont la forme d'une matrice indiquant pour 417 individus son espèce ainsi que les valeurs de 1300 descripteurs (réels positifs). Le but du travail est d'inférer les espèces à partir des descripteurs.
+Code 2 : 
 
-Nous observons certains descripteurs présentant des valeurs non-attribuées (NA). Nous faisons alors le choix de ne pas prendre en compte ces colonnes ce qui réduit la matrice des descripteurs à 1275 colonnes.
+~~~~~~~ { .python .numberLines}
+cv_res = cross_val_score(grid_search, X, y, cv = 10)
+acc = cv_res.mean()
+~~~~~~~
 
-Enfin, nous réalisons un encodage numérique des 20 espèces décrites initialement sous forme textuelle.
+La fonction `GridSearchCV` permet de réaliser plusieurs estimations pour différents paramètres (une grille de paramètres) afin de déterminer le jeu de paramètres qui obtient le score maximal. Ces estimations sont effectuées en appliquant la méthode de validation croisée. Par défaut, le jeu de données d'apprentissage est séparé en trois parties (*3-fold cross validation*).
 
-## Analyse exploratoire par visualisation
+Le code 1 effectue donc :
 
-### Réduction dimensionnelle par PCA
+1. Pour chaque jeu de paramètres :
+	i) entraînement du modèle par validation croisée en 3 parties.
+	ii) calcul du score qui correspond au score moyen de la validation croisée.
+2. Détermination du jeu de paramètre avec le score maximal.
+3. attribuer à `acc` la valeur de ce score maximal.
 
-#### Principe
+Le code 2 quant à lui effectue une nouvelle cross validation, cette fois en 10 parties, sur le résultat de `grid_search`. On répète donc l'opération du code 1 dix fois et on récupère ensuite la valeur moyenne.
 
-La méthode PCA (*Principal component analysis*) est une technique visant à réduire le nombre de dimensions d'une base de données en retenant uniquement les informations utiles. Elle consiste en une corrélation et fournit un nombre minimum de variables qui conserve la valeur maximale de variation à propos de la distribution de l'information. Mathématiquement, cette méthode passe par les valeurs propres de la matrice de covariance qui indiquent les directions de variation maximale.
+## Application à un classifieur SVM à noyau RBF
 
-#### Application
+### Génération des données
 
-Nous appliquons la méthode PCA fournie par `scikit-learn` sur la matrice des descripteurs. Dans un soucis de visualisation, nous nous limitons à trois directions de variation maximale.
+Nous générons les données avec la fonction `make_moons` fournie par `scikit-learn`. Nous tirons 500 échantillons avec un bruit de $0.6$.
+ 
+![Données générées par `make_moons(n_samples=500, noise=0.6, random_state=27)`](../../jupyter/figures/two-moon.svg "moons")
 
-Nous obtenons que ces trois directions comptent pour 17% des variations de la totalité des données. Il s'agit maintenant d'observer si certaines espèces se distinguent des autres dans cet espace à trois dimensions de manière à former des groupes (clusters).
+### Code 1
 
-![PCA 3d representation](../../jupyter/figures/pca.svg "Représentation 3D des trois directions de variation maximale de la méthode PCA")
+Nous appliquons le code 1 avec le classifieur SVM à noyau RBF pour une grille de paramètres définie comme suit :
 
-Les trois directions de la méthode PCA semblent détenir des informations au sujet des espèces. Malheureusement, des groupes bien définis ne se distinguent pas assez. Nous allons donc utiliser une autre méthode de réduction de dimension.
+~~~~~~~ { .python .numberLines}
+param_C = [0.1, 0.5, 1.0, 5.0, 10.0]
+param_gamma = [0.1, 0.5, 1, 5.0, 10.0]
+~~~~~~~
 
-### Réduction dimensionnelle par t-SNE
+En prenant 80% du jeu de donnée (le reste étant dédié au test ultérieur), il retourne un score maximal de $0.79$ pour le jeu de paramètre $(C,\gamma)=(1,1)$.
 
-#### Principe
+Nous entrons alors spécifiquement ce jeu de paramètre pour inférer sur les données test et il vient un score de $0.8$.
 
-#### Application
+![données moons](../../jupyter/figures/two-moon-svm-rbf-gs.svg "moons-svm-rbf-gs")
 
-![t-SNE representation](../../jupyter/figures/t-sne.svg "t-SNE")
+### Code 2
 
-![t-SNE representation](../../jupyter/figures/t-sne_pca.svg "t-SNE PCA")
-
----
+Le code 2, appliqué lui aussi aux données d'entraînement nous retourne un score moyen de $0.77$, légèrement inférieur donc au score obtenu précédement. De plus, ce code ne permet pas d'accéder aux paramètres optimaux  
